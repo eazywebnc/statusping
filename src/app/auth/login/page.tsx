@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Activity, ArrowLeft, Mail } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-export default function LoginPage() {
+function LoginForm() {
   const searchParams = useSearchParams();
   const isSignup = searchParams.get("mode") === "signup";
   const [email, setEmail] = useState("");
@@ -183,5 +183,13 @@ export default function LoginPage() {
         </p>
       </motion.div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center"><div className="w-8 h-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" /></div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
