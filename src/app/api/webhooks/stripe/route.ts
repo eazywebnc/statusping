@@ -1,0 +1,102 @@
+import { NextResponse } from "next/server";
+import { stripe } from "@/lib/stripe";
+import { getPlanByPriceId } from "@/lib/stripe";
+import { createClient } from "@supabase/supabase-js";
+import Stripe from "stripe";
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function POST(request: Request) {
+  const body = await request.text();
+  const signature = request.headers.get("stripe-signature");
+
+  if (!signature) {
+    return NextResponse.json({ error: "No signature" }, { status: 400 });
+  }
+
+  let event: Stripe.Event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    );
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json(
+      { error: `Webhook signature verification failed: ${message}` },
+      { status: 400 }
+    );
+  }
+
+  switch (event.type) {
+    case "checkout.session.completed": {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const customerId = session.customer as string;
+      const subscriptionId = session.subscription as string;
+      const userId = session.metadata?.userId;
+
+      if (userId && subscriptionId) {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const priceId = subscription.items.data[0]?.price?.id;
+        const plan = priceId ? getPlanByPriceId(priceId) : undefined;
+
+        await supabaseAdmin
+          .from("sp_settings")
+          .update({
+            plan: plan?.id ?? "pro",
+            stripe_customer_id: customerId,
+            stripe_subscription_id: subscriptionId,
+          })
+          .eq("user_id", userId);
+      }
+      break;
+    }
+
+    case "invoice.payment_succeeded": {
+      const invoice = event.data.object;
+      const invoiceRecord = invoice as unknown as Record<string, unknown>;
+      const subscriptionId = invoiceRecord.subscription as string | undefined;
+      const paymentIntent = invoiceRecord.payment_intent;
+
+      if (subscriptionId && paymentIntent) {
+        // Subscription renewed successfully - no action needed
+      }
+      break;
+    }
+
+    case "invoice.payment_failed": {
+      const invoice = event.data.object;
+      const customerId = (invoice as unknown as Record<string, unknown>).customer as string;
+
+      // Downgrade to free on payment failure
+      if (customerId) {
+        await supabaseAdmin
+          .from("sp_settings")
+          .update({ plan: "free" })
+          .eq("stripe_customer_id", customerId);
+      }
+      break;
+    }
+
+    case "customer.subscription.deleted": {
+      const subscription = event.data.object as Stripe.Subscription;
+      const customerId = subscription.customer as string;
+
+      await supabaseAdmin
+        .from("sp_settings")
+        .update({
+          plan: "free",
+          stripe_subscription_id: null,
+        })
+        .eq("stripe_customer_id", customerId);
+      break;
+    }
+  }
+
+  return NextResponse.json({ received: true });
+}
