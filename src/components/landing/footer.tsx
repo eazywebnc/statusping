@@ -17,8 +17,8 @@ const footerLinks = {
     { label: "Contact", href: "mailto:contact@eazyweb.nc" },
   ],
   Legal: [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
     { label: "SLA", href: "#" },
   ],
 };

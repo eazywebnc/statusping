@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://statusping.eazyweb.nc"),
   title: "StatusPing - Uptime Monitoring & Status Pages",
   description:
     "Know when your site goes down before your customers do. Uptime monitoring, status pages, and instant alerts for small businesses.",
@@ -43,12 +44,37 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "StatusPing",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    description: "Uptime monitoring and status pages for small businesses. Know when your site goes down before your customers do.",
+    url: "https://statusping.eazyweb.nc",
+    offers: [
+      { "@type": "Offer", price: "0", priceCurrency: "USD", name: "Free" },
+      { "@type": "Offer", price: "19", priceCurrency: "USD", name: "Pro" },
+      { "@type": "Offer", price: "49", priceCurrency: "USD", name: "Business" },
+    ],
+    creator: { "@type": "Organization", name: "EazyWebNC", url: "https://eazyweb.nc" },
+  };
+
   return (
     <html lang="en" className="dark">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0a0a0a] text-white`}
       >
-        {children}
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-green-600 focus:text-white focus:rounded">Skip to content</a>
+        <div id="main-content">
+          {children}
+        </div>
       </body>
     </html>
   );
