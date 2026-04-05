@@ -37,13 +37,13 @@ export const metadata: Metadata = {
     siteName: "StatusPing",
     type: "website",
     locale: "en_US",
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'StatusPing — Uptime Monitoring & Status Pages' }],
+    images: [{ url: '/images/og-image.webp', width: 1200, height: 630, type: 'image/webp', alt: 'StatusPing — Uptime Monitoring & Status Pages' }],
   },
   twitter: {
     card: "summary_large_image",
     title: "StatusPing - Uptime Monitoring",
     description: "Know when your site goes down before your customers do.",
-    images: ['/og-image.png'],
+    images: ['/images/og-image.webp'],
   },
   alternates: {
     canonical: "https://statusping.eazyweb.nc",
