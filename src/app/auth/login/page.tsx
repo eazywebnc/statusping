@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Activity, ArrowLeft, Mail } from "lucide-react";
@@ -8,6 +9,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const isSignup = searchParams.get("mode") === "signup";
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -101,10 +104,12 @@ export default function LoginPage() {
           ) : (
             <>
               <h2 className="text-2xl font-bold text-white mb-2">
-                Welcome back
+                {isSignup ? "Create your account" : "Welcome back"}
               </h2>
               <p className="text-sm text-zinc-400 mb-6">
-                Sign in to your account or create a new one
+                {isSignup
+                  ? "Sign up to start monitoring your services"
+                  : "Sign in to your account or create a new one"}
               </p>
 
               {/* Google */}

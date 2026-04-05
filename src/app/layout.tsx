@@ -37,6 +37,9 @@ export const metadata: Metadata = {
     title: "StatusPing - Uptime Monitoring",
     description: "Know when your site goes down before your customers do.",
   },
+  alternates: {
+    canonical: "https://statusping.eazyweb.nc",
+  },
 };
 
 export default function RootLayout({
