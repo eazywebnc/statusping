@@ -31,11 +31,13 @@ export const metadata: Metadata = {
     url: "https://statusping.eazyweb.nc",
     siteName: "StatusPing",
     type: "website",
+    images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "StatusPing - Uptime Monitoring",
     description: "Know when your site goes down before your customers do.",
+    images: ['/opengraph-image'],
   },
   alternates: {
     canonical: "https://statusping.eazyweb.nc",
